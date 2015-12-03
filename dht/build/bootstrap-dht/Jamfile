@@ -1,0 +1,17 @@
+lib boost-system : : <target-os>darwin <name>boost_system-mt <search>/opt/local/lib : : <include>/opt/local/include ;
+lib boost-system : : <name>boost_system ;
+
+exe dht-bootstrap
+
+	: # sources
+	main.cpp lazy_bdecode.cpp
+
+	: # requirements
+	<threading>multi
+	<library>boost-system
+	: # default build
+	<link>static
+	<threading>multi
+	: # usage requirements
+	;
+install stage : dht-bootstrap : <location>. ;

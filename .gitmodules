@@ -1,0 +1,6 @@
+[submodule "docker-opentracker/opentracker"]
+	path = docker-opentracker/opentracker
+	url = git://erdgeist.org/opentracker
+[submodule "dht/bootstrap-dht"]
+	path = dht/bootstrap-dht
+	url = https://github.com/bittorrent/bootstrap-dht.git

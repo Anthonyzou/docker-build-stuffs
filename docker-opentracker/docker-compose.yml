@@ -1,0 +1,7 @@
+ot:
+  build: .
+  ports:
+    - "6969:6969"
+  command: -d /tmp
+  environment:
+    - REDIRECT_URL=http://google.com

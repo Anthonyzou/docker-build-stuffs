@@ -1,0 +1,1 @@
+docker run -it thing -v ~/Music/2017:/tmp/music PLKVpu_2-084Qw9BZEayrBXIgKdf8NyTNH

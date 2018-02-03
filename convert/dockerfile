@@ -18,7 +18,7 @@ RUN make; make install;
 
 RUN mv /usr/bin/python3 /usr/bin/python
 
-ADD check.sh /tmp
+ADD check /tmp
 WORKDIR /tmp/music
 
 ENTRYPOINT ["youtube-dl"]

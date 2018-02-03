@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 IFS=$'\n';
 # remove trailing and leading spaces
 # remove [Future base], 【Future base】, 「Future base」

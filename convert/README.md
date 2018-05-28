@@ -1,7 +1,7 @@
 
 # About
 
-A docker image that can download a youtube play list, insert an image of the video into the mp4, tag the file, and normalize the volume of each song.
+A docker image that can download a youtube play list, insert an image of the video into the mp3 file, tag the file with metadata, and normalize the volume of each song.
 
 
 # Run command

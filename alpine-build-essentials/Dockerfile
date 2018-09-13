@@ -1,3 +1,3 @@
-FROM gliderlabs/alpine
+FROM alpine
 
 RUN apk --update add gcc make g++ zlib-dev

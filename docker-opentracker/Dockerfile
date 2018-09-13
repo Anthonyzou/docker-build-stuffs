@@ -1,14 +1,16 @@
+FROM alpine as build
+
+COPY opentracker /tmp/opentracker
+COPY libowfat /tmp/libowfat
+RUN apk --update add gcc make g++ zlib-dev
+RUN make -C /tmp/libowfat 
+RUN make -C /tmp/opentracker
+RUN chmod +x /tmp/opentracker/opentracker 
+
 FROM alpine
 
-COPY libowfat-0.30 /tmp/libowfat
-COPY opentracker /tmp/opentracker
-RUN apk --update add gcc make g++ zlib-dev && \
-ls /tmp; make -C /tmp/libowfat && make -C /tmp/opentracker &&\
-apk del gcc make g++ zlib-dev && \
-mv /tmp/opentracker/opentracker /bin/  && \
-rm -rf /var/cache/apk/* /tmp/* &&\
-touch /etc/opentracker.conf;
-
+RUN touch /etc/opentracker.conf;
+COPY --from=build /tmp/opentracker/opentracker /bin/opentracker
 COPY entrypoint.sh /
 
 EXPOSE 6969 80

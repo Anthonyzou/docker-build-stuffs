@@ -4,3 +4,6 @@
 [submodule "dht/bootstrap-dht"]
 	path = dht/bootstrap-dht
 	url = https://github.com/bittorrent/bootstrap-dht.git
+[submodule "docker-opentracker/libowfat"]
+	path = docker-opentracker/libowfat
+	url = https://github.com/gebi/libowfat.git

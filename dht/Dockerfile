@@ -7,11 +7,12 @@ RUN apk --update add gcc make g++ zlib-dev && \
 ADD bootstrap-dht /tmp/bootstrap-dht
 WORKDIR /tmp/bootstrap-dht
 RUN bjam release
+RUN chmod +x dht-bootstrap;
 
 FROM alpine
 
 COPY --from=dht /tmp/bootstrap-dht/dht-bootstrap /bin/dht-bootstrap
-RUN apk --update add libgcc libstdc++ musl; chmod +x /bin/dht-bootstrap
+RUN apk --update add libgcc libstdc++ musl boost
 
 EXPOSE 6881
 

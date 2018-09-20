@@ -1,7 +1,16 @@
-ot:
-  build: .
-  ports:
-    - "6969:6969"
-  command: -d /tmp
-  environment:
-    - REDIRECT_URL=http://google.com
+version: '3'
+services:
+  ot-build:
+    build: .
+    ports:
+      - '6969:6969'
+    command: -d /tmp
+    environment:
+      - REDIRECT_URL=https://google.com
+  ot-image:
+    image: anthonyzou/opentracker
+    ports:
+      - '6969:6969'
+    command: -d /tmp
+    environment:
+      - REDIRECT_URL=https://google.com

@@ -1,0 +1,10 @@
+version: '3'
+services:
+  dht-build:
+    build: .
+    ports:
+      - '6881:6881'
+  dht-image:
+    image: anthonyzou/dht-bootstrap
+    ports:
+      - '6881:6881'

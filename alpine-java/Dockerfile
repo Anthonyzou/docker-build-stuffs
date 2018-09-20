@@ -1,3 +1,5 @@
-FROM node:10-alpine
+FROM node:10
 
-RUN apk --update add openjdk8;
+RUN apt-get update; apt-get install default-jdk -y;
+
+

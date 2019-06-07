@@ -1,8 +1,8 @@
 FROM alpine as dht
 
 
-RUN apk --update add gcc make g++ zlib-dev && \ 
-    apk add boost-build --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
+RUN apk --update add gcc make g++ zlib-dev && \
+    apk add boost-build --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/edge/ --allow-untrusted
 
 ADD bootstrap-dht /tmp/bootstrap-dht
 WORKDIR /tmp/bootstrap-dht

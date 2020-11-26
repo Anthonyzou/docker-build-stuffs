@@ -2,21 +2,21 @@ FROM ubuntu as build
 
 RUN apt-get update
 RUN apt-get install g++ build-essential \
-    make libreadline-dev libncurses5-dev -y
+    make libreadline-dev libncurses5-dev libmpg123-dev -y
 ADD id3ed-1.10.4.tar.gz /tmp
-ADD mp3gain-1_5_2_r2-src.tar.gz /tmp
+ADD mp3gain-1_6_2-src.tar.gz /tmp
 
 WORKDIR /tmp/id3ed-1.10.4
 RUN ./configure; make; make install;
-WORKDIR /tmp/mp3gain-1_5_2_r2-src
+WORKDIR /tmp/mp3gain-1_6_2-src
 RUN make; make install;
 
-FROM ubuntu 
+FROM ubuntu
 COPY --from=build /usr/local/bin/id3ed /usr/local/bin/id3ed
 COPY --from=build /usr/local/bin/mp3gain /usr/local/bin/mp3gain
 ADD https://yt-dl.org/downloads/latest/youtube-dl /usr/local/bin/youtube-dl
 RUN chmod a+rx /usr/local/bin/youtube-dl
-RUN apt-get update; apt-get install python3 ca-certificates atomicparsley ffmpeg -y 
+RUN apt-get update; apt-get install python3 ca-certificates atomicparsley ffmpeg -y
 RUN mv /usr/bin/python3 /usr/bin/python
 
 ENV LANG C.UTF-8

@@ -8,6 +8,7 @@ A docker image that can download a youtube play list, insert an image of the vid
 - mp3gain for normalizing audio
 - id3ed for editing metadata
 - bash for parsing out metadata from youtube titles
+- youtube-dl for downloading the videos, inserting thumbnails, and extracting mp3
 
 # Run command
 

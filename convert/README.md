@@ -1,7 +1,10 @@
-
 # About
 
 A docker image that can download a youtube play list, insert an image of the video into the mp3 file, tag the file with metadata, and normalize the volume of each song.
+
+# Building
+
+Build the docker image locally by running `docker build -t anthonyzou/convert .`
 
 # Dependencies
 

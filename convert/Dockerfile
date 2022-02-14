@@ -14,7 +14,7 @@ RUN make; make install;
 FROM ubuntu
 COPY --from=build /usr/local/bin/id3ed /usr/local/bin/id3ed
 COPY --from=build /usr/local/bin/mp3gain /usr/local/bin/mp3gain
-ADD https://yt-dl.org/downloads/latest/youtube-dl /usr/local/bin/youtube-dl
+ADD https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp /usr/local/bin/youtube-dl
 RUN chmod a+rx /usr/local/bin/youtube-dl
 RUN apt-get update; apt-get install python3 ca-certificates atomicparsley ffmpeg -y
 RUN mv /usr/bin/python3 /usr/bin/python

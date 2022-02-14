@@ -11,16 +11,17 @@ RUN ./configure; make; make install;
 WORKDIR /tmp/mp3gain-1_6_2-src
 RUN make; make install;
 
-FROM ubuntu
+FROM node
 COPY --from=build /usr/local/bin/id3ed /usr/local/bin/id3ed
 COPY --from=build /usr/local/bin/mp3gain /usr/local/bin/mp3gain
 ADD https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp /usr/local/bin/youtube-dl
 RUN chmod a+rx /usr/local/bin/youtube-dl
 RUN apt-get update; apt-get install python3 ca-certificates atomicparsley ffmpeg -y
-RUN mv /usr/bin/python3 /usr/bin/python
+WORKDIR /tmp
+RUN npm install glob get-artist-title
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
-ADD check /tmp
+ADD check.js /tmp
 WORKDIR /tmp/music

@@ -11,7 +11,7 @@ RUN ./configure; make; make install;
 WORKDIR /tmp/mp3gain-1_6_2-src
 RUN make; make install;
 
-FROM node
+FROM node:17
 COPY --from=build /usr/local/bin/id3ed /usr/local/bin/id3ed
 COPY --from=build /usr/local/bin/mp3gain /usr/local/bin/mp3gain
 ADD https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp /usr/local/bin/youtube-dl

@@ -10,7 +10,7 @@ console.log(process.argv);
 
 try {
   const basename = path.basename(input);
-  const [artist, title] = getArtistTitle(basename);
+  const [artist, title] = getArtistTitle(basename) ?? [];
 
   console.log(`artist ${artist}\n\ntitle ${title}\n\n${basename}`);
 
@@ -28,11 +28,11 @@ try {
   console.log(e);
 }
 
-Promise.all([
-  exec(`ffmpeg-normalize -c:a libmp3lame "${input}" -o "${input}" -f `),
-]).then((results) => {
-  results.map(({ stdout, stderr }) => {
-    console.log(stdout);
-    console.log(stderr);
-  });
-});
+// Promise.all([
+//   exec(`ffmpeg-normalize -c:a libmp3lame "${input}" -o "${input}" -f `),
+// ]).then((results) => {
+//   results.map(({ stdout, stderr }) => {
+//     console.log(stdout);
+//     console.log(stderr);
+//   });
+// });

@@ -1,4 +1,4 @@
-FROM alpine as build
+FROM alpine AS build
 
 COPY opentracker /tmp/opentracker
 COPY libowfat /tmp/libowfat

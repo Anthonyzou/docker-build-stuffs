@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.24@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
 
-FROM alpine:3.23.4 AS build-base
+FROM alpine:3 AS build-base
 
 ARG TARGETARCH
 
@@ -14,6 +14,8 @@ RUN --mount=type=cache,id=apk-cache-${TARGETARCH},target=/var/cache/apk \
 	libevent-dev \
 	libsodium-dev \
 	nghttp2-dev \
+	jq \
+	curl \
 	openssl-dev \
 	hiredis-dev \
 	expat-dev
@@ -33,16 +35,11 @@ FROM build-base AS unbound
 
 WORKDIR /src
 
-ARG UNBOUND_VERSION=1.25.1
-# https://nlnetlabs.nl/downloads/unbound/unbound-1.25.1.tar.gz.sha256
-ARG UNBOUND_SHA256="0fe8b6277b0959cfd17562debac0aa5f71e0b02dc4ffa9c60271c583edab586f"
+RUN DOWNLOAD_URL=$(curl -s 'https://api.github.com/repos/NLnetLabs/unbound/tags' | \
+    jq -r '.[0].name | sub("release-"; "unbound-") | "https://nlnetlabs.nl/downloads/unbound/" + . + ".tar.gz"') && \
+    wget "$DOWNLOAD_URL" -O unbound.tar.gz
 
-ADD https://nlnetlabs.nl/downloads/unbound/unbound-${UNBOUND_VERSION}.tar.gz unbound.tar.gz
-
-SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
-
-RUN echo "${UNBOUND_SHA256}  unbound.tar.gz" | sha256sum -c - \
-	&& tar -xzf unbound.tar.gz --strip-components=1
+RUN tar -xzf unbound.tar.gz --strip-components=1
 
 # https://unbound.docs.nlnetlabs.nl/en/latest/getting-started/installation.html#building-from-source-compiling
 RUN ./configure \
@@ -97,7 +94,6 @@ FROM unbound AS root-key
 
 WORKDIR /var/unbound
 
-SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
 COPY --from=root-hints /root.hints .
 
@@ -110,7 +106,7 @@ RUN { /opt/usr/sbin/unbound-anchor -v -r root.hints -a root.key || true ; } | te
 
 ####################################################################################################
 
-FROM alpine:3.23.4 AS final
+FROM alpine:3 AS final
 
 
 COPY --from=build-base /lib/ld-musl*.so.1 /lib/

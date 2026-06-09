@@ -1,0 +1,136 @@
+# syntax=docker/dockerfile:1.24@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+
+FROM alpine:3.23.4 AS build-base
+
+ARG TARGETARCH
+
+# hadolint ignore=DL3018
+RUN --mount=type=cache,id=apk-cache-${TARGETARCH},target=/var/cache/apk \
+	apk add --update --cache-dir=/var/cache/apk \
+	binutils \
+	bind-tools \
+	build-base \
+	ca-certificates-bundle \
+	libevent-dev \
+	libsodium-dev \
+	nghttp2-dev \
+	openssl-dev \
+	hiredis-dev \
+	expat-dev
+
+RUN find / -name "libcrypto.so*" -exec ls -al {} \;
+
+ARG UNBOUND_UID=101
+ARG UNBOUND_GID=102
+
+RUN addgroup -S -g ${UNBOUND_GID} unbound \
+	&& adduser -S -g unbound -h /var/unbound -u ${UNBOUND_UID} -D -H -G unbound unbound
+
+
+####################################################################################################
+
+FROM build-base AS unbound
+
+WORKDIR /src
+
+ARG UNBOUND_VERSION=1.25.1
+# https://nlnetlabs.nl/downloads/unbound/unbound-1.25.1.tar.gz.sha256
+ARG UNBOUND_SHA256="0fe8b6277b0959cfd17562debac0aa5f71e0b02dc4ffa9c60271c583edab586f"
+
+ADD https://nlnetlabs.nl/downloads/unbound/unbound-${UNBOUND_VERSION}.tar.gz unbound.tar.gz
+
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
+
+RUN echo "${UNBOUND_SHA256}  unbound.tar.gz" | sha256sum -c - \
+	&& tar -xzf unbound.tar.gz --strip-components=1
+
+# https://unbound.docs.nlnetlabs.nl/en/latest/getting-started/installation.html#building-from-source-compiling
+RUN ./configure \
+	--prefix=/opt/usr \
+	--with-conf-file=/etc/unbound/unbound.conf \
+	--with-run-dir=/var/unbound \
+	--with-chroot-dir=/var/unbound \
+	--with-pidfile=/var/unbound/unbound.pid \
+	--with-rootkey-file=/var/unbound/root.key \
+	--disable-static \
+	--disable-shared \
+	--disable-rpath \
+	--enable-dnscrypt \
+	--enable-subnet \
+	--enable-cachedb \
+	--enable-tfo-server \
+	--enable-tfo-client \
+	--with-pthreads \
+	--with-libevent \
+	--with-libhiredis \
+	--with-libnghttp2 \
+	--with-ssl \
+	--with-username=unbound
+
+RUN make -j"$(nproc)" && \
+	make install && \
+	strip /opt/usr/sbin/unbound \
+	/opt/usr/sbin/unbound-anchor \
+	/opt/usr/sbin/unbound-checkconf \
+	/opt/usr/sbin/unbound-control \
+	/opt/usr/sbin/unbound-host
+
+WORKDIR /var/unbound
+
+####################################################################################################
+
+FROM scratch AS conf-example
+
+# docker build . --target conf-example --output rootfs_overlay/etc/unbound/
+COPY --from=unbound /etc/unbound/unbound.conf /unbound.conf.example
+
+####################################################################################################
+
+FROM build-base AS root-hints
+
+# https://unbound.docs.nlnetlabs.nl/en/latest/manpages/unbound-anchor.html
+RUN wget -q https://www.internic.net/domain/named.root -O /root.hints
+
+####################################################################################################
+
+FROM unbound AS root-key
+
+WORKDIR /var/unbound
+
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
+
+COPY --from=root-hints /root.hints .
+
+# Generate initial root key with the provided root hints.
+# https://unbound.docs.nlnetlabs.nl/en/latest/manpages/unbound-anchor.html
+# This tool exits with value 1 if the root anchor was updated using the certificate or
+# if the builtin root-anchor was used. It exits with code 0 if no update was necessary,
+# if the update was possible with RFC 5011 tracking, or if an error occurred.
+RUN { /opt/usr/sbin/unbound-anchor -v -r root.hints -a root.key || true ; } | tee -a /dev/stderr | grep -q "success: the anchor is ok"
+
+####################################################################################################
+
+FROM alpine:3.23.4 AS final
+
+
+COPY --from=build-base /lib/ld-musl*.so.1 /lib/
+COPY --from=build-base /usr/lib/libgcc_s.so.1 /usr/lib/
+COPY --from=build-base /usr/lib/libcrypto.so.3 /usr/lib/libssl.so.3 /usr/lib/
+COPY --from=build-base /usr/lib/libsodium.so.* /usr/lib/libevent-2.1.so.* /usr/lib/libexpat.so.* /usr/lib/libhiredis.so.* /usr/lib/libnghttp2.so.* /usr/lib/
+COPY --from=build-base /etc/ssl/ /etc/ssl/
+COPY --from=build-base /etc/passwd /etc/group /etc/
+
+COPY --from=unbound /opt/usr/sbin/ /usr/sbin/
+
+COPY --chown=unbound:unbound rootfs_overlay/etc/unbound/ /etc/unbound/
+
+COPY --from=root-key --chown=unbound:unbound /var/unbound/root.hints /var/unbound/root.hints
+COPY --from=root-key --chown=unbound:unbound /var/unbound/root.key /var/unbound/root.key
+
+RUN apk add --no-cache bash
+
+RUN [ "unbound", "-V" ]
+# hadolint ignore=DL3059
+RUN [ "unbound-checkconf" ]
+
+ENTRYPOINT [ "unbound" ]

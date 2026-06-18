@@ -1,4 +1,4 @@
-FROM node:20-slim
+FROM node:26-slim
 
 ADD https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp /usr/local/bin/youtube-dl
 RUN chmod a+rx /usr/local/bin/youtube-dl

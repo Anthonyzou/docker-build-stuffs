@@ -19,7 +19,7 @@ Build the docker image locally by running `docker build -t anthonyzou/convert .`
 docker run -it -v (pwd):/tmp/music anthonyzou/convert \
 youtube-dl -i -w -k -x --default-search ytsearch \
 --embed-thumbnail --audio-format mp3 -o "%(title)s.%(ext)s" \
-[ID OF PLAYLIST OR VIDEO]  --exec '../check {}'
+[ID OF PLAYLIST OR VIDEO]  --exec 'node ../check.js {}'
 ```
 
 # Common extra commands

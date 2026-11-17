@@ -1,8 +1,12 @@
+#!/usr/bin/env node
+
 const getArtistTitle = require("get-artist-title");
 const path = require("path");
 const util = require("util");
-const exec = util.promisify(require("child_process").exec);
+const { exec } = require("child_process")
+const execP = util.promisify(exec);
 const NodeID3 = require("node-id3");
+const { updateFile } = require('music-metadata');
 
 const input = process.argv[2];
 
@@ -14,22 +18,18 @@ try {
 
   console.log(`artist ${artist}\n\ntitle ${title}\n\n${basename}`);
 
-  console.log(
-    `writing tags: ${NodeID3.update(
-      {
-        artist,
-        title,
-        input,
-      },
-      input
-    )}`
-  );
+  await updateFile(input, {
+    title: title,
+    artists: [artist],
+  }, {});
+
+
 } catch (e) {
   console.log(e);
 }
 
 // Promise.all([
-//   exec(`ffmpeg-normalize -c:a libmp3lame "${input}" -o "${input}" -f `),
+//   execP(`ffmpeg-normalize -c:a libmp3lame "${input}" -o "${input}" -f `),
 // ]).then((results) => {
 //   results.map(({ stdout, stderr }) => {
 //     console.log(stdout);

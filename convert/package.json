@@ -1,6 +1,13 @@
 {
+  "version": "2.0.2",
+  "scripts": {
+    "build": "docker build -t anthonyzou/convert:$npm_package_version -t anthonyzou/convert:latest . --platform linux/amd64,linux/arm64",
+    "push": "docker push anthonyzou/convert:$npm_package_version",
+    "postpush": "docker push anthonyzou/convert:latest",
+    "run": "docker run -it -v (pwd):/tmp/music anthonyzou/convert youtube-dl -i -w -k -x --default-search ytsearch --embed-thumbnail --audio-format opus -o \"%(title)s.%(ext)s\" PLKVpu_2-084SZJsdqmMYe8Fx_Lp0qaRwk --exec '../check {}' --playlist-end 11 --playlist-reverse"
+  },
   "dependencies": {
     "get-artist-title": "1.3.1",
-    "node-id3": "0.2.9"
+    "music-metadata": "12.7.0"
   }
 }

@@ -5,7 +5,6 @@ const path = require("path");
 const util = require("util");
 const { exec } = require("child_process")
 const execP = util.promisify(exec);
-const NodeID3 = require("node-id3");
 const { updateFile } = require('music-metadata');
 
 const input = process.argv[2];
@@ -16,12 +15,12 @@ try {
   const basename = path.basename(input);
   const [artist, title] = getArtistTitle(basename) ?? [];
 
-  console.log(`artist ${artist}\n\ntitle ${title}\n\n${basename}`);
+  console.log(`\n\nartist ${artist}\n\ntitle ${title}\n\n${basename}\n`);
 
-  await updateFile(input, {
+  updateFile(input, {
     title: title,
-    artists: [artist],
-  }, {});
+    ...artist && { artists: [artist] },
+  }, {}).then(console.log).catch(console.log);
 
 
 } catch (e) {

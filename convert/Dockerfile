@@ -4,8 +4,10 @@ ADD https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp /usr/local/
 RUN chmod a+rx /usr/local/bin/youtube-dl
 RUN apt-get update; apt-get install python3 python3-pip ffmpeg -y
 WORKDIR /tmp
-ADD check.js package-lock.json package.json ./
 RUN pip3 install ffmpeg-normalize mutagen --break-system-packages
+
+
+ADD check.js package-lock.json package.json ./
 RUN npm install 
 
 
